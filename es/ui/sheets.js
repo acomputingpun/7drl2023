@@ -6,7 +6,7 @@ import * as fonts from '/es/ui/fonts.js'
 
 import * as uiconst from '/es/ui/uiconst.js'
 
-let DPRINT_CACHE_MISSES = true
+let DPRINT_CACHE_MISSES = false
 
 class _SpriteSheet extends hacks._Map {
     lookup() {

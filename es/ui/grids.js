@@ -1,11 +1,11 @@
 import * as errs from '/es/errs.js'
 import * as vecs from '/es/vectors.js'
 
-import * as ui_panels from '/es/ui/panels.js'
+import * as panels from '/es/ui/panels.js'
 
-export class GridPanel extends ui_panels.Panel {
-    constructor() {
-        super(...arguments)        
+export class GridPanel extends panels.Panel {
+    constructor(...rest) {
+        super(...rest)        
     }
 
     get originShift() { return vecs.Vec2(0, 0) }

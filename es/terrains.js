@@ -11,8 +11,8 @@ class _Terrain {
 }
 
 export class Wall extends _Terrain {
-    constructor () {
-        super(...arguments)
+    constructor (...rest) {
+        super(...rest)
 
         this.drawGlyph = "#"
         this.drawFG = "#555"
@@ -21,8 +21,8 @@ export class Wall extends _Terrain {
 }
 
 export class Floor extends _Terrain {
-    constructor () {
-        super(...arguments)
+    constructor (...rest) {
+        super(...rest)
 
         this.drawGlyph = "."
         this.drawFG = "#AAA"

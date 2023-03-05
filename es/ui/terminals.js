@@ -1,5 +1,6 @@
 import * as errs from '/es/errs.js'
 import * as vecs from '/es/vectors.js'
+import * as utils from '/es/utils.js'
 
 import * as colours from '/es/ui/colours.js'
 import * as fonts from '/es/ui/fonts.js'
@@ -7,7 +8,7 @@ import * as uiconst from '/es/ui/uiconst.js'
 
 import * as ui_sheets from '/es/ui/sheets.js'
 import * as ui_grids from '/es/ui/grids.js'
-
+import * as ui_huds from '/es/ui/huds.js'
 
 let DEBUG_ALWAYS_DRAW = true
 let DEBUG_TWOPASS_DRAW = true
@@ -91,13 +92,13 @@ class _TerminalExtensions {
 }
 
 class _Terminal extends _TerminalExtensions {
-    constructor(renderer=hacks.argPanic()) {
-        super(...arguments)
+    constructor(renderer=hacks.argPanic(), ...rest) {
+        super(...rest)
 
         this._renderer = renderer
         this.sheet = new ui_sheets.ColourTextSpriteSheet()
 
-        this.TILES_ON_SCREEN = vecs.Vec2(36, 24)
+        this.TILES_ON_SCREEN = vecs.Vec2(72, 56)
 
         this._initMatrices()
         this._children = []
@@ -108,7 +109,7 @@ class _Terminal extends _TerminalExtensions {
 
     get children() { return this._children }
     drawChildren() {
-        for (let child of this.children) {
+        for (let child of utils.aReverse(this.children)) {
             child.draw()
         }
     }
@@ -165,27 +166,88 @@ class _Terminal extends _TerminalExtensions {
         throw new errs.ToBeOverridden()
     }
 
-    putGlyph(pX, pY, glyph) {
-        if (this._glyphMatrix[pY][pX] !== glyph) {
-            this._glyphMatrix[pY][pX] = glyph
-            this._dirtyMatrix[pY][pX] = true
+    putGlyph(xTer, yTer, glyph) {
+        if (this._glyphMatrix[yTer][xTer] !== glyph) {
+            this._glyphMatrix[yTer][xTer] = glyph
+            this._dirtyMatrix[yTer][xTer] = true
         }
     }
-    put(pX, pY, glyph=null, fg=null, bg=null) {
-        if (glyph !== null && glyph != this._glyphMatrix[pY][pX]) {
-            this._glyphMatrix[pY][pX] = glyph
-            this._dirtyMatrix[pY][pX] = true
+    put(xTer, yTer, glyph=null, fg=null, bg=null) {
+        if (glyph !== null && glyph != this._glyphMatrix[yTer][xTer]) {
+            this._glyphMatrix[yTer][xTer] = glyph
+            this._dirtyMatrix[yTer][xTer] = true
         }
-        if (fg !== null && fg != this._fgMatrix[pY][pX]) {
-            this._fgMatrix[pY][pX] = fg
-            this._dirtyMatrix[pY][pX] = true
+        if (fg !== null && fg != this._fgMatrix[yTer][xTer]) {
+            this._fgMatrix[yTer][xTer] = fg
+            this._dirtyMatrix[yTer][xTer] = true
         }
-        if (bg !== null && bg != this._bgMatrix[pY][pX]) {
-            this._bgMatrix[pY][pX] = bg
-            this._dirtyMatrix[pY][pX] = true
+        if (bg !== null && bg != this._bgMatrix[yTer][xTer]) {
+            this._bgMatrix[yTer][xTer] = bg
+            this._dirtyMatrix[yTer][xTer] = true
         }
     }
         
+    textLine(xTer, yTer, text, fg=null, bg=null) {
+        for (let glyph of text) {
+            this.put(xTer, yTer, glyph, fg, bg)
+            xTer += 1
+        }
+    }
+
+    textClip(xTer, yTer, xWidth, text, fg=null, bg=null) {
+        for (let xShift = Math.min(xWidth, text.width)-1; xShift >= 0; xShift--) {
+            this.put(xTer+xShift, yTer, glyph, fg, bg)
+        }            
+    }
+
+    textWrap(xTer, yTer, xWidth, text, fg=null, bg=null) {
+        let words = text.split(' ')
+        let line = ''
+
+        for (let word of words) {
+            if (line.length + word.length > xWidth) {
+                if (line.length > 0) {
+                    this.textLine(xTer, yTer, line, fg, bg)
+                    line = ''
+                    yTer += 1
+                } else {
+                    while (word.length > 0) {
+                        this.textLine(xTer, yTer, word.slice(0, xWidth))
+                        word = word.slice(xWidth)
+                        yTer += 1
+                    }
+                }
+            } else {
+                line = line + ' ' + word
+            }
+        }
+        this.textLine(xTer, yTer, line, fg, bg)
+        
+        return yTer
+    }
+
+    wrapText(text, xDraw, yDraw, xWidth, yLineHeight) {
+        let words = text.split(' ')
+        let line = ''
+
+        let yShift = 0
+
+        for (let word of words) {
+            let metric = this.ctx.measureText(line + word + ' ')
+            if (metric.width > xWidth) {
+                this.ctx.fillText(line, xDraw, yDraw+yShift)
+                yShift += yLineHeight
+                line = word + ' '
+            } else {
+                line = line + word + ' '
+            }
+        }
+        this.ctx.fillText(line, xDraw, yDraw+yShift)
+        yShift += yLineHeight
+        return yShift
+    }
+
+
     markDirty(tX, tY) {
         this._dirtyMatrix[tY][tX] = true
     }
@@ -195,8 +257,8 @@ class _Terminal extends _TerminalExtensions {
 }
 
 export class Terminal extends _Terminal {
-    constructor() {
-        super(...arguments)
+    constructor(...rest) {
+        super(...rest)
         if (DEBUG_TWOPASS_DRAW) {
             this._drawTilesLoop = this.twopass_drawTilesLoop
             this._drawGlyph = this.twopass_drawGlyph
@@ -206,6 +268,9 @@ export class Terminal extends _Terminal {
             this._drawGlyph = this.onepass_drawGlyph
         }
 
-        this._children = [new ui_grids.GridPanel(this)]
+        this.gridPanel = new ui_grids.GridPanel(this)
+        this.pauseMenuPanel = new ui_huds.PauseMenuPanel(this)
+ 
+        this._children = [this.pauseMenuPanel]
     }
 }

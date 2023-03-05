@@ -52,7 +52,7 @@ export class Occupant {
     set tile(tile) {
         if (tile !== null) {
             if (tile.occupant !== null) {
-                throw errs.Panic(`Tried to set occupant ${this} to tile {tile} but it already contained ${tile.occupant}`)
+                throw new errs.Panic(`Tried to set occupant ${this} to tile {tile} but it already contained ${tile.occupant}`)
             }
             tile.occupant = this
         }

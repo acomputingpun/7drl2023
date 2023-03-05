@@ -12,7 +12,7 @@ export class Panel {
     get state() { return this.parent.state }
     get ter() { return this.parent.ter }
 
-    get panelSize() { return vecs.Vec2(1, 1) }
+    get panelSize() { return vecs.Vec2(3, 3) }
     get absNW() { return this.absOrigin }
 
     get children() {

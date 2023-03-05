@@ -1,3 +1,9 @@
+import * as vecs from '/es/vectors.js'
+import * as hacks from '/es/hacks.js'
+import * as errs from '/es/errs.js'
+
+import * as panels from '/es/ui/panels.js'
+
 export class MenuItem {
     constructor (text, data) {
         this._text = text
@@ -16,8 +22,12 @@ export class Menu {
         this._selectedIndex = null;
     }
 
-    get selectedIndex(index) { this._selectedIndex = index }
-    set selectedIndex() { return this._selectedIndex }
+    get selectedIndex() { return this._selectedIndex }
+    set selectedIndex(index) { this._selectedIndex = index }
+
+    getMenuItems() {
+        throw new errs.ToBeOverridden()
+    }
 
     get selectedItem() {
         if (this._selectedIndex !== null) {
@@ -70,3 +80,31 @@ export class Menu {
     }
 }
 
+export class PresetMenu extends Menu {
+    constructor (menuItems, ...rest) {
+        super(...rest)
+        this._menuItems = menuItems
+    }
+    
+    getMenuItems() { return this._menuItems }
+}
+
+export class MenuPanel extends panels.Panel {
+    constructor(menu = hacks.argPanic(), ...rest) {
+        super(...rest)
+        this.menu = menu
+    }
+
+    drawMenuItemAt(xDraw, yDraw, menuItem) {
+        this.ter.textLine(xDraw, yDraw, menuItem.text)
+    }
+
+    drawContents() {
+        let [xOrigin, yOrigin] = this.absOrigin.xy
+        let menuItems = this.menu.getMenuItems()
+
+        for (let index = 0; index < menuItems.length; index++) {
+            this.drawMenuItemAt(xOrigin, yOrigin+index, menuItems[index])
+        }
+    }
+}
