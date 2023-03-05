@@ -9,6 +9,7 @@ export class GameRunner {
 
     main () {
         this.renderer.startDrawLoop()
+        this.renderer.startListening()
         console.log("amain", this)
     }
 }

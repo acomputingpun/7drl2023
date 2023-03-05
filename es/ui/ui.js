@@ -5,14 +5,17 @@ import * as fonts from '/es/ui/fonts.js'
 import * as colours from '/es/ui/colours.js'
 
 import * as ui_terminals from '/es/ui/terminals.js'
+import * as warps from '/es/ui/warps.js'
+import * as ui_huds from '/es/ui/huds.js'
+
 
 export class Renderer {
     constructor(runner) {
+        this.runner = runner
+        this._activeWarp = null
+
         this.initCanvas()
         this.initTerminal()
-        this.initListeners()
-
-        this.runner = runner
 
         this._oldDrawTimes = [0,0,0,0,0,0,0,0,0]
     }
@@ -29,18 +32,31 @@ export class Renderer {
     initTerminal() {
         this.terminal = new ui_terminals.Terminal(this)
     }
-    initListeners() {
+
+    warpKeydown(ev) {
+        this._activeWarp.warpKeydown(ev)
+    }
+
+    startListening() {
+        this.transferWarp(new ui_huds.PauseMenuWarp(this.terminal.pauseMenuPanel, this))
         window.addEventListener('keydown', this.warpKeydown.bind(this), false)
     }
 
-    warpKeydown(ev) {
-        console.log(`pressed key ${ev.keyCode}, ev is`, ev)
+    transferWarp(warp) {
+        if (this._activeWarp !== null) {
+            this._activeWarp.onExitWarp()
+        }
+        this._activeWarp = warp
+        if (this._activeWarp !== null) {
+            this._activeWarp.onEnterWarp()
+        }
     }
 
     startDrawLoop() {
         this.firstDrawMS = Date.now()
         this.requestAnimationFrame = window.requestAnimationFrame.bind(window)
         this.requestAnimationFrame( this.drawLoop.bind(this) )
+
     }
     drawLoop() {
         this.drawMS = Date.now()

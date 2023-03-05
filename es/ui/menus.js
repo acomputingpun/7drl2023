@@ -1,8 +1,10 @@
 import * as vecs from '/es/vectors.js'
+import * as dirconst from '/es/dirconst.js'
 import * as hacks from '/es/hacks.js'
 import * as errs from '/es/errs.js'
 
 import * as panels from '/es/ui/panels.js'
+import * as warps from '/es/ui/warps.js'
 
 export class MenuItem {
     constructor (text, data) {
@@ -23,7 +25,8 @@ export class Menu {
     }
 
     get selectedIndex() { return this._selectedIndex }
-    set selectedIndex(index) { this._selectedIndex = index }
+    setSelectedByIndex(index) { this._selectedIndex = index }
+    setSelectedByData(data) { this._selectedIndex = thus.lookupIndexByData(data) }
 
     getMenuItems() {
         throw new errs.ToBeOverridden()
@@ -95,8 +98,16 @@ export class MenuPanel extends panels.Panel {
         this.menu = menu
     }
 
+    get selectedItem() { return this.menu.selectedItem }
+    get selectedData() { return this.menu.selectedData }
+    get selectedText() { return this.menu.selectedText }
+
     drawMenuItemAt(xDraw, yDraw, menuItem) {
-        this.ter.textLine(xDraw, yDraw, menuItem.text)
+        if (menuItem === this.menu.selectedItem) {
+            this.ter.textLine(xDraw, yDraw, menuItem.text, "#111", "#EEE")
+        } else {
+            this.ter.textLine(xDraw, yDraw, menuItem.text)
+        }
     }
 
     drawContents() {
@@ -105,6 +116,37 @@ export class MenuPanel extends panels.Panel {
 
         for (let index = 0; index < menuItems.length; index++) {
             this.drawMenuItemAt(xOrigin, yOrigin+index, menuItems[index])
+        }
+    }
+}
+
+export class MenuPanelWarp extends warps.Warp {
+    constructor(panel, ...rest) {
+        super(...rest)
+        this.panel = panel
+    }
+
+    get menu() { return this.panel.menu }
+
+    warpSelect() {
+        console.log("pressed select w/ selectedItem", this.menu.selectedItem)
+    }
+    warpCancel() {
+        if (this.state === null) {
+            console.log("can't cancel pause menu - there is no state!")
+        } else {
+            throw errs.Panic(`Not yet implemented!`)
+        }
+    }
+
+    warpCardinal(card) {
+        if (this.menu.selectedIndex !== null) {
+            let nItems = this.menu.getMenuItems().length
+            if (card === dirconst.N) {
+                this.menu.setSelectedByIndex((this.menu.selectedIndex + nItems - 1) % nItems)
+            } else if (card === dirconst.S) {
+                this.menu.setSelectedByIndex((this.menu.selectedIndex + 1) % nItems)
+            }
         }
     }
 }

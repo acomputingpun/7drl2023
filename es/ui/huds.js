@@ -15,8 +15,35 @@ export class PauseMenuPanel extends menus.MenuPanel {
     }
 
     drawMenuItemAt(xDraw, yDraw, menuItem) {
-        this.ter.textLine(xDraw, yDraw, `(${menuItem.data}) ${menuItem.text}`)
+        if (menuItem.data === this.selectedData) {
+            this.ter.textLine(xDraw, yDraw, `(${menuItem.data}) ${menuItem.text}`, "#F00", "#00F")
+        } else {
+            this.ter.textLine(xDraw, yDraw, `(${menuItem.data}) ${menuItem.text}`)
+        }
     }
 
-    get originShift() { return vecs.Vec2(0,0) }
+    get originShift() { return vecs.Vec2(10,10) }
+    get panelSize() { return vecs.Vec2(30, 3) }
+}
+
+export class PauseMenuWarp extends menus.MenuPanelWarp {
+    constructor(...rest) {
+        super(...rest)
+    }
+
+    onEnterWarp() {
+        console.log("this is", this)
+        this.menu.setSelectedByIndex(0)
+    }
+
+    warpSelect() {
+        console.log("pressed select w/ selectedItem", this.selectedItem)
+    }
+    warpCancel() {
+        if (this.state === null) {
+            console.log("can't cancel pause menu - there is no state!")
+        } else {
+            throw errs.Panic(`Not yet implemented!`)
+        }
+    }
 }
