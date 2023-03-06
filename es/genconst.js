@@ -1,1 +1,1 @@
-export var mainCanvasSize = [1200, 900]
+export var mainCanvasSize = [800, 600]

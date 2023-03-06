@@ -7,16 +7,18 @@ import * as hacks from '/es/hacks.js'
 export class Panel {
     constructor(parent=hacks.argPanic()) {
         this.parent = parent
+        this._children = []
     }
 
     get state() { return this.parent.state }
+    get ren() { return this.parent.ren }
     get ter() { return this.parent.ter }
 
     get panelSize() { return vecs.Vec2(3, 3) }
     get absNW() { return this.absOrigin }
 
     get children() {
-        return []
+        return this._children
     }
 
     draw() {

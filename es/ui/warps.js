@@ -5,40 +5,48 @@ let DPRINT_VALID_KEYS = true
 let DPRINT_INVALID_KEYS = true
 
 export class Warp {
-    constructor(renderer) {
-        this._ren = renderer
+    constructor(panel=hacks.argPanic()) {
+        this._panel = panel
     }
     
-    get ren() { return this._ren }
+    get panel() { return this._panel }
+    get ren() { return this.panel.ren }
     get state() { return this.ren.state }
     
     warpKeydown(ev) {
         switch(ev.key) {
         case "Enter":
         case "Space":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: Select")
             this.warpSelect()
             break
         case "Escape":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: Cancel")
             this.warpCancel()
             break
         case "ArrowDown":
         case "2":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: arrow s")
             this.warpCardinal(dirconst.S)
             break
         case "ArrowUp":
         case "8":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: arrow n")
             this.warpCardinal(dirconst.N)
             break
         case "ArrowLeft":
         case "4":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: arrow w")
             this.warpCardinal(dirconst.W)
             break
         case "ArrowRight":
         case "6":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: arrow e")
             this.warpCardinal(dirconst.E)
             break
         case "Clear":
         case "5":
+            hacks.dlog(DPRINT_VALID_KEYS, "key: arrow in_place")
             this.warpCardinal(dirconst.IN_PLACE)
             break
         default:
@@ -47,20 +55,19 @@ export class Warp {
     }
 
     warpSelect() {
-        hacks.dlog(DPRINT_VALID_KEYS, "key: Select")
     }
     warpCancel() {
-        hacks.dlog(DPRINT_VALID_KEYS, "key: Cancel")
     }
     warpCardinal(card) {
-        hacks.dlog(DPRINT_VALID_KEYS, "key: arrow ${card}")
     }
     warpNumeric(val) {
         hacks.dlog(DPRINT_VALID_KEYS, "key: numeric ${val}")
     }
 
-    onEnterWarp() {
+    onEnterWarp(source=hacks.argPanic()) {
     }
-    onExitWarp() {
+    onExitWarp(dest=hacks.argPanic()) {
     }
+
+    toString() { return `warp ${this.constructor.name}` }
 }

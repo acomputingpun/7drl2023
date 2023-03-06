@@ -3,42 +3,27 @@ import * as hacks from '/es/hacks.js'
 
 import * as menus from '/es/ui/menus.js'
 
-class PauseMenu extends menus.PresetMenu {
-    constructor(...rest) {
-        super([new menus.MenuItem("New Game", "n"), new menus.MenuItem("Map Generation Sandbox", "m"), new menus.MenuItem("Exit", "x")], ...rest)
-    }
-}
-
 export class PauseMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
-        super(new PauseMenu(), ...rest)
-    }
-
-    drawMenuItemAt(xDraw, yDraw, menuItem) {
-        if (menuItem.data === this.selectedData) {
-            this.ter.textLine(xDraw, yDraw, `(${menuItem.data}) ${menuItem.text}`, "#F00", "#00F")
-        } else {
-            this.ter.textLine(xDraw, yDraw, `(${menuItem.data}) ${menuItem.text}`)
-        }
+        super(new menus.PresetMenu([
+            new menus.MenuItem("New Game", "n"),
+            new menus.MenuItem("Map Generation Sandbox", "m"),
+            new menus.MenuItem("Settings", "s"),
+            new menus.MenuItem("Exit", "x")
+        ]), ...rest)
+        this.settingsMenuPanel = new SettingsMenuPanel(this)
     }
 
     get originShift() { return vecs.Vec2(10,10) }
-    get panelSize() { return vecs.Vec2(30, 3) }
-}
+    get panelSize() { return vecs.Vec2(30, 4) }
 
-export class PauseMenuWarp extends menus.MenuPanelWarp {
-    constructor(...rest) {
-        super(...rest)
+    warpSelectItem(selectedItem) {
+        if (selectedItem.data == "s") {
+            this.ren.transferWarp(this.settingsMenuPanel.focusWarp)
+        } else {
+        }
     }
 
-    onEnterWarp() {
-        console.log("this is", this)
-        this.menu.setSelectedByIndex(0)
-    }
-
-    warpSelect() {
-        console.log("pressed select w/ selectedItem", this.selectedItem)
-    }
     warpCancel() {
         if (this.state === null) {
             console.log("can't cancel pause menu - there is no state!")
@@ -46,4 +31,28 @@ export class PauseMenuWarp extends menus.MenuPanelWarp {
             throw errs.Panic(`Not yet implemented!`)
         }
     }
+}
+export class SettingsMenuPanel extends menus.MenuPanel {
+    constructor(...rest) {
+        super(new menus.PresetMenu([
+            new menus.MenuItem("Reduce Tile Size", "r"),
+            new menus.MenuItem("Increase Tile Size", "i"),
+            new menus.MenuItem("Done", "d")
+        ]), ...rest)
+    }
+
+    warpSelectItem(selectedItem) {
+        if (selectedItem.data == "r") {
+            this.ter.setTileSize( Math.max(this.ter.tileSize - 2, 6) )
+        } else if (selectedItem.data == "i") {
+            this.ter.setTileSize( Math.min(this.ter.tileSize + 2, 24) )
+        } else if (selectedItem.data == "d") {
+            this.warpCancel()
+        } else {
+
+        }
+    }
+
+    get originShift() { return vecs.Vec2(10,10) }
+    get panelSize() { return vecs.Vec2(30, 3) }
 }

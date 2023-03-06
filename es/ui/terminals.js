@@ -1,5 +1,6 @@
 import * as errs from '/es/errs.js'
 import * as vecs from '/es/vectors.js'
+import * as hacks from '/es/hacks.js'
 import * as utils from '/es/utils.js'
 
 import * as colours from '/es/ui/colours.js'
@@ -10,27 +11,28 @@ import * as ui_sheets from '/es/ui/sheets.js'
 import * as ui_grids from '/es/ui/grids.js'
 import * as ui_huds from '/es/ui/huds.js'
 
+let DPRINT_DRAW_LOOP = false
+
 let DEBUG_ALWAYS_DRAW = true
-let DEBUG_TWOPASS_DRAW = true
+let DEBUG_TWOPASS_DRAW = false
+
+let TILES_ON_SCREEN = vecs.Vec2(72, 56)
 
 class _TerminalExtensions {
 // ONE-PASS TERMINAL DRAWING FUNCTIONS
     onepass_drawTilesLoop() {
-        this.ctx.textBaseline = "middle"
-        this.ctx.textAlign = "center"
-        this.ctx.font = fonts.TERMINAL_TEXT
-
-        for (let xDraw = 0; xDraw < this.TILES_ON_SCREEN.x; xDraw++) {
-            for (let yDraw = 0; yDraw < this.TILES_ON_SCREEN.y; yDraw++) {
+        hacks.dlog(DPRINT_DRAW_LOOP, "beginning single-pass drawTiles loop")
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
-                    this._drawGlyph (xDraw, yDraw)
+                    this.onepass_drawTile (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
                 }
             }
         }
     }
 
-    onepass_drawGlyph(xDraw, yDraw) {
+    onepass_drawTile(xDraw, yDraw) {
         let [xCanvas, yCanvas] = this.tToCPos(xDraw, yDraw)
         let _glyph = this._glyphMatrix[yDraw][xDraw]
         let _fg = this._fgMatrix[yDraw][xDraw]
@@ -44,23 +46,32 @@ class _TerminalExtensions {
 
 // TWO-PASS TERMINAL DRAWING FUNCTIONS
     twopass_drawTilesLoop() {
-        for (let xDraw = 0; xDraw < this.TILES_ON_SCREEN.x; xDraw++) {
-            for (let yDraw = 0; yDraw < this.TILES_ON_SCREEN.y; yDraw++) {
+        hacks.dlog(DPRINT_DRAW_LOOP, "beginning two-pass drawTiles loop")
+
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
-                    this._drawBG (xDraw, yDraw)
+                    this.twopass_drawBG (xDraw, yDraw)
                 }
             }
         }
-        for (let xDraw = 0; xDraw < this.TILES_ON_SCREEN.y; xDraw++) {
-            for (let yDraw = 0; yDraw < this.TILES_ON_SCREEN.y; yDraw++) {
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
-                    this._drawGlyph (xDraw, yDraw)
+                    this.twopass_drawGlyph (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
                 }
             }
         }
     }
 
+    twopass_drawBG(xDraw, yDraw) {
+        let [xCanvas, yCanvas] = this.tToCPos(xDraw, yDraw)
+        let _bg = this._bgMatrix[yDraw][xDraw]
+
+        this.ctx.fillStyle = _bg
+        this.ctx.fillRect(xCanvas, yCanvas, this.tileSize, this.tileSize)
+    }
     twopass_drawGlyph(xDraw, yDraw) {
         let [xCanvas, yCanvas] = this.tToCPos(xDraw, yDraw)
         let _glyph = this._glyphMatrix[yDraw][xDraw]
@@ -69,39 +80,63 @@ class _TerminalExtensions {
         let sprite = this.sheet.lookup(_glyph, _fg)
         this.ctx.drawImage(sprite, xCanvas, yCanvas)
     }
-    twopass_drawBG(xDraw, yDraw) {
-        let [xCanvas, yCanvas] = this.tToCPos(xDraw, yDraw)
-        let _bg = this._bgMatrix[yDraw][xDraw]
-
-        this.ctx.fillStyle = _bg
-        this.ctx.fillRect(xCanvas, yCanvas, uiconst.TILE_SIZE, uiconst.TILE_SIZE)
-    }
 
 // FALLBACK DRAWING FUNCTIONS
-    fallback_drawGlyph(xDraw, yDraw) {
+    fallback_drawTile(xDraw, yDraw) {
         let [xCanvas, yCanvas] = this.tToCPos(xDraw, yDraw)
         let _glyph = this._glyphMatrix[yDraw][xDraw]
         let _fg = this._fgMatrix[yDraw][xDraw]
         let _bg = this._bgMatrix[yDraw][xDraw]
 
-        this.ctx.fillStyle = colours._bg
-        this.ctx.fillRect(xCanvas, yCanvas, uiconst.TILE_SIZE, uiconst.TILE_SIZE)
-        this.ctx.fillStyle = colours._fg
-        this.ctx.fillText(`${_glyph}`[0], xCanvas+uiconst.TILE_MID_OFFSET, yCanvas+uiconst.TILE_MID_OFFSET)
+        this.ctx.fillStyle = _bg
+        this.ctx.fillRect(xCanvas, yCanvas, this.tileSize, this.tileSize)
+        this.ctx.fillStyle = _fg
+        this.ctx.fillText(`${_glyph}`[0], xCanvas+this.tileMidOffset, yCanvas+this.tileMidOffset)
+    }
+
+    fallback_drawTilesLoop(xDraw, yDraw) {
+        this.ctx.textBaseline = "middle"
+        this.ctx.textAlign = "center"
+        this.ctx.font = fonts.terminalText(this.tileSize)
+        hacks.dlog(DPRINT_DRAW_LOOP, "beginning FALLBACK drawtiles loop")
+
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
+                if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
+                    this.fallback_drawTile (xDraw, yDraw)
+                    this._dirtyMatrix[yDraw][xDraw] = false
+                }
+            }
+        }
     }
 }
 
 class _Terminal extends _TerminalExtensions {
-    constructor(renderer=hacks.argPanic(), ...rest) {
+    constructor(ren=hacks.argPanic(), ...rest) {
         super(...rest)
 
-        this._renderer = renderer
-        this.sheet = new ui_sheets.ColourTextSpriteSheet()
-
-        this.TILES_ON_SCREEN = vecs.Vec2(72, 56)
+        this._ren = ren
+        this.sheet = null
+        this.tileSize = null
 
         this._initMatrices()
         this._children = []
+
+        this.setTileSize(uiconst.INITIAL_TILE_SIZE)
+    }
+
+    get tileMidOffset() { return this.tileSize / 2 }
+    setTileSize(tileSize) {
+        if (this.tileSize !== tileSize) {
+            this.tileSize = tileSize
+            this.sheet = new ui_sheets.ColourTextSpriteSheet(this.tileSize)
+
+            if (DEBUG_TWOPASS_DRAW) {
+                this._drawTilesLoop = this.twopass_drawTilesLoop
+            } else {
+                this._drawTilesLoop = this.onepass_drawTilesLoop
+            }
+        }
     }
 
     get originShift() { return vecs.Vec2(0, 0) }
@@ -114,21 +149,25 @@ class _Terminal extends _TerminalExtensions {
         }
     }
 
-    get renderer() { return this._renderer }
-    get state() { return this.renderer.runner.state }
-    get ctx() { return this.renderer.ctx }
+    get ren() { return this._ren }
+    get state() { return this.ren.runner.state }
+    get ctx() { return this.ren.ctx }
 
     get ter() { return this }
     
-    tToCVec(tVec) { return tVec.sMul(uiconst.TILE_SIZE) }
-    tToCPos(tX, tY) { return [tX*uiconst.TILE_SIZE, tY*uiconst.TILE_SIZE] }
+    tToCVec(tVec) { return tVec.sMul(this.tileSize) }
+    tToCPos(tX, tY) { return [tX*this.tileSize, tY*this.tileSize] }
 
-    cToTVec(cVec) { return cVec.sMul(1/uiconst.TILE_SIZE).floor() }
-    cToTPos(cX, cY) { return [Math.floor(cX / uiconst.TILE_SIZE), Math.floor(cY / uiconst.TILE_SIZE)] }
+    cToTVec(cVec) { return cVec.sMul(1/this.tileSize).floor() }
+    cToTPos(cX, cY) { return [Math.floor(cX / this.tileSize), Math.floor(cY / this.tileSize)] }
 
     draw() {
         this.drawChildren()
-        this._drawTilesLoop()
+        if (this.sheet === null) {
+            this.fallback_drawTilesLoop()
+        } else {
+            this._drawTilesLoop()
+        }
     }
 
     _initMatrices() {
@@ -136,13 +175,13 @@ class _Terminal extends _TerminalExtensions {
         this._fgMatrix = []
         this._bgMatrix = []
         this._dirtyMatrix = []
-        for (let yTile = 0; yTile < this.TILES_ON_SCREEN.y; yTile++) {
+        for (let yTile = 0; yTile < TILES_ON_SCREEN.y; yTile++) {
             let glyphRow = []
             let fgRow = []
             let bgRow = []
             let dirtyRow = []
 
-            for (let xTile = 0; xTile < this.TILES_ON_SCREEN.x; xTile++) {
+            for (let xTile = 0; xTile < TILES_ON_SCREEN.x; xTile++) {
                 glyphRow.push(" ")
                 fgRow.push(colours.WHITE)
                 bgRow.push(colours.BLACK)
@@ -259,18 +298,9 @@ class _Terminal extends _TerminalExtensions {
 export class Terminal extends _Terminal {
     constructor(...rest) {
         super(...rest)
-        if (DEBUG_TWOPASS_DRAW) {
-            this._drawTilesLoop = this.twopass_drawTilesLoop
-            this._drawGlyph = this.twopass_drawGlyph
-            this._drawBG = this.twopass_drawBG
-        } else {
-            this._drawTilesLoop = this.onepass_drawTilesLoop
-            this._drawGlyph = this.onepass_drawGlyph
-        }
-
         this.gridPanel = new ui_grids.GridPanel(this)
         this.pauseMenuPanel = new ui_huds.PauseMenuPanel(this)
- 
+
         this._children = [this.pauseMenuPanel]
     }
 }

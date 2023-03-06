@@ -1,5 +1,6 @@
 import * as genconst from '/es/genconst.js'
 
+import * as hacks from '/es/hacks.js'
 import * as vecs from '/es/vectors.js'
 import * as fonts from '/es/ui/fonts.js'
 import * as colours from '/es/ui/colours.js'
@@ -8,6 +9,7 @@ import * as ui_terminals from '/es/ui/terminals.js'
 import * as warps from '/es/ui/warps.js'
 import * as ui_huds from '/es/ui/huds.js'
 
+let DPRINT_WARP_TRANSFERS = true
 
 export class Renderer {
     constructor(runner) {
@@ -38,17 +40,20 @@ export class Renderer {
     }
 
     startListening() {
-        this.transferWarp(new ui_huds.PauseMenuWarp(this.terminal.pauseMenuPanel, this))
+        console.log("this is", this)
+        this.transferWarp(this.terminal.pauseMenuPanel.focusWarp)
         window.addEventListener('keydown', this.warpKeydown.bind(this), false)
     }
 
     transferWarp(warp) {
+        hacks.dlog(DPRINT_WARP_TRANSFERS, `Transferring from warp ${this._activeWarp} to ${warp}`)
         if (this._activeWarp !== null) {
-            this._activeWarp.onExitWarp()
+            this._activeWarp.onExitWarp(warp)
         }
+        let oldActiveWarp = this._activeWarp
         this._activeWarp = warp
         if (this._activeWarp !== null) {
-            this._activeWarp.onEnterWarp()
+            this._activeWarp.onEnterWarp(oldActiveWarp)
         }
     }
 

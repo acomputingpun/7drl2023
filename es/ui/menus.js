@@ -1,13 +1,16 @@
 import * as vecs from '/es/vectors.js'
 import * as dirconst from '/es/dirconst.js'
 import * as hacks from '/es/hacks.js'
+import * as utils from '/es/utils.js'
 import * as errs from '/es/errs.js'
 
 import * as panels from '/es/ui/panels.js'
 import * as warps from '/es/ui/warps.js'
 
+export var DPRINT_MENU_SELECTIONS = true
+
 export class MenuItem {
-    constructor (text, data) {
+    constructor (text=hacks.argPanic(), data=hacks.argPanic(), ...rest) {
         this._text = text
         this._data = data
     }
@@ -26,7 +29,7 @@ export class Menu {
 
     get selectedIndex() { return this._selectedIndex }
     setSelectedByIndex(index) { this._selectedIndex = index }
-    setSelectedByData(data) { this._selectedIndex = thus.lookupIndexByData(data) }
+    setSelectedByData(data) { this._selectedIndex = this.lookupIndexByData(data) }
 
     getMenuItems() {
         throw new errs.ToBeOverridden()
@@ -84,7 +87,7 @@ export class Menu {
 }
 
 export class PresetMenu extends Menu {
-    constructor (menuItems, ...rest) {
+    constructor (menuItems=hacks.argPanic(), ...rest) {
         super(...rest)
         this._menuItems = menuItems
     }
@@ -96,14 +99,24 @@ export class MenuPanel extends panels.Panel {
     constructor(menu = hacks.argPanic(), ...rest) {
         super(...rest)
         this.menu = menu
+        this.focusWarp = new MenuPanelWarp(this)
+
+        this._highlightedIndex = null
     }
 
-    get selectedItem() { return this.menu.selectedItem }
-    get selectedData() { return this.menu.selectedData }
-    get selectedText() { return this.menu.selectedText }
+    get highlightedIndex() { return this._highlightedIndex }
+    setHighlightedByIndex(index) { this._highlightedIndex = index }
+    setHighlightedByData(data) { this._highlightedIndex = this.menu.lookupIndexByData(data) }
+    get highlightedItem() {
+        if (this.highlightedIndex !== null) {
+            return this.menu.lookupByIndex(this.highlightedIndex)
+        } else {
+            return null
+        }
+    }
 
     drawMenuItemAt(xDraw, yDraw, menuItem) {
-        if (menuItem === this.menu.selectedItem) {
+        if (menuItem === this.highlightedItem) {
             this.ter.textLine(xDraw, yDraw, menuItem.text, "#111", "#EEE")
         } else {
             this.ter.textLine(xDraw, yDraw, menuItem.text)
@@ -118,35 +131,54 @@ export class MenuPanel extends panels.Panel {
             this.drawMenuItemAt(xOrigin, yOrigin+index, menuItems[index])
         }
     }
+
+    warpSelectHighlightedItem() {
+        if (this.highlightedItem !== null) {
+            hacks.dlog(DPRINT_MENU_SELECTIONS, `SELECT in menuPanel`, this, `w/ highlightedItem`, this.highlightedItem)
+            this.warpSelectItem(this.highlightedItem)
+        }
+    }
+    warpSelectItem(item) {
+        throw new errs.ToBeOverridden()
+    }
+
+    warpCancel() {
+        this.ren.transferWarp(this.parent.focusWarp)
+    }
 }
 
 export class MenuPanelWarp extends warps.Warp {
-    constructor(panel, ...rest) {
-        super(...rest)
-        this.panel = panel
+    get selectedItem() { return this.panel.selectedItem }
+    get highlightedItem() { return this.panel.highlightedItem }
+    get highlightedIndex() { return this.panel.highlightedIndex }
+
+    warpSelectItem(item) {
+        throw new errs.ToBeOverridden()
     }
-
-    get menu() { return this.panel.menu }
-
     warpSelect() {
-        console.log("pressed select w/ selectedItem", this.menu.selectedItem)
+        this.panel.warpSelectHighlightedItem()
     }
     warpCancel() {
-        if (this.state === null) {
-            console.log("can't cancel pause menu - there is no state!")
-        } else {
-            throw errs.Panic(`Not yet implemented!`)
-        }
+        this.panel.warpCancel()
     }
 
     warpCardinal(card) {
-        if (this.menu.selectedIndex !== null) {
-            let nItems = this.menu.getMenuItems().length
+        hacks.dlog(DPRINT_MENU_SELECTIONS, `CARDINAL ${card} in menuPanelWarp`, this)
+        if (this.panel.highlightedItem !== null) {
+            let nItems = this.panel.menu.getMenuItems().length
             if (card === dirconst.N) {
-                this.menu.setSelectedByIndex((this.menu.selectedIndex + nItems - 1) % nItems)
+                this.panel.setHighlightedByIndex((this.highlightedIndex + nItems - 1) % nItems)
             } else if (card === dirconst.S) {
-                this.menu.setSelectedByIndex((this.menu.selectedIndex + 1) % nItems)
+                this.panel.setHighlightedByIndex((this.highlightedIndex + 1) % nItems)
             }
         }
+    }
+
+    onEnterWarp(source) {
+        this.panel.parent.children.push(this.panel)
+        this.panel.setHighlightedByIndex(0)
+    }
+    onExitWarp(dest) {
+        utils.aRemove(this.panel.parent.children, this.panel)
     }
 }

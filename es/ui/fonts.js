@@ -1,2 +1,5 @@
-export var SMALL_TEXT = "10px Courier"
-export var TERMINAL_TEXT = "16px Courier"
+export var SMALL_TEXT = "10px Arial"
+
+export function terminalText(fontSize) {
+    return `${fontSize}px Courier`
+}

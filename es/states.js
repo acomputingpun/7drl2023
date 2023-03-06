@@ -4,9 +4,6 @@ import * as grids from '/es/grids.js'
 export class State {
     constructor() {
         this.level = new Level()
-
-        console.log("getting poses", this.grid.iterTiles()) 
-        console.log("getting poses again!", this.grid.iterTiles()) 
     }
     
     get grid() { return this.level.grid }
