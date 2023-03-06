@@ -2,6 +2,7 @@ import * as errs from '/es/errs.js'
 import * as vecs from '/es/vectors.js'
 
 import * as panels from '/es/ui/panels.js'
+import * as uiconst from '/es/ui/uiconst.js'
 
 export class GridPanel extends panels.Panel {
     constructor(...rest) {
@@ -9,7 +10,7 @@ export class GridPanel extends panels.Panel {
     }
 
     get originShift() { return vecs.Vec2(0, 0) }
-    get panelSize() { return this.ter.TILES_ON_SCREEN }
+    get panelSize() { return uiconst.TILES_ON_SCREEN }
 
     drawBacking() {
     }

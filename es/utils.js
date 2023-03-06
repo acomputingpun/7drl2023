@@ -44,7 +44,6 @@ export function* aReverse(arr) {
     for (let k = arr.length-1; k>=0; k--) {
         yield arr[k];
     }
-    
 }
 
 export function aCreate2(xs, ys, iFunc) {

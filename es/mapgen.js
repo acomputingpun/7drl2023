@@ -7,7 +7,7 @@ export class MapGenerator {
     }
     
     prefill() {
-        for (let tile of this.iterTiles()) {
+        for (let tile of this.level.iterTiles()) {
         }
     }
     

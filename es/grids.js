@@ -14,7 +14,11 @@ export class Grid {
     }
 
     lookup (x,y) {
-        return this._matrix[y][x]
+        if (0<=x && x<this.xySize.x && 0<=y && y<this.xySize.y) {
+            return this._matrix[y][x]
+        } else {
+            return null
+        }
     }
     iterPoses = hacks.cachedLookup(() => this.xySize, () => {
         let poses = []

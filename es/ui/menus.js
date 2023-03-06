@@ -172,10 +172,16 @@ export class MenuPanelWarp extends warps.Warp {
     }
 
     onEnterWarp(source) {
-        this.panel.parent.children.push(this.panel)
-        this.panel.setHighlightedByIndex(0)
+        if (source === this.panel.parent.focusWarp) {
+            this.panel.parent.children.push(this.panel)
+            this.panel.setHighlightedByIndex(0)
+        } else if (source === null) {
+            this.panel.setHighlightedByIndex(0)
+        }
     }
     onExitWarp(dest) {
-        utils.aRemove(this.panel.parent.children, this.panel)
+        if (dest === this.panel.parent.focusWarp) {
+            utils.aRemove(this.panel.parent.children, this.panel)
+        }
     }
 }

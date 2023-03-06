@@ -9,7 +9,7 @@ export class PauseMenuPanel extends menus.MenuPanel {
             new menus.MenuItem("New Game", () => null),
             new menus.MenuItem("Map Generation Sandbox", () => null),
             new menus.MenuItem("Settings", (panel) => panel.ren.transferWarp(panel.settingsMenuPanel.focusWarp)),
-            new menus.MenuItem("Exit", () => "x")
+            new menus.MenuItem("Exit", () => null)
         ]), ...rest)
         this.settingsMenuPanel = new SettingsMenuPanel(this)
     }

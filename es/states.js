@@ -11,7 +11,7 @@ export class State {
 
 export class Level {
     constructor() {
-        this.grid = new grids.Grid( vecs.Vec2(36, 24) )
+        this.grid = new grids.Grid( vecs.Vec2(24, 24) )
     }
 }
 

@@ -16,14 +16,12 @@ let DPRINT_DRAW_LOOP = false
 let DEBUG_ALWAYS_DRAW = true
 let DEBUG_TWOPASS_DRAW = false
 
-let TILES_ON_SCREEN = vecs.Vec2(72, 56)
-
 class _TerminalExtensions {
 // ONE-PASS TERMINAL DRAWING FUNCTIONS
     onepass_drawTilesLoop() {
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning single-pass drawTiles loop")
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
+        for (let xDraw = uiconst.TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = uiconst.TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.onepass_drawTile (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -48,15 +46,15 @@ class _TerminalExtensions {
     twopass_drawTilesLoop() {
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning two-pass drawTiles loop")
 
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
+        for (let xDraw = uiconst.TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = uiconst.TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.twopass_drawBG (xDraw, yDraw)
                 }
             }
         }
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
+        for (let xDraw = uiconst.TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = uiconst.TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.twopass_drawGlyph (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -100,8 +98,8 @@ class _TerminalExtensions {
         this.ctx.font = fonts.terminalText(this.tileSize)
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning FALLBACK drawtiles loop")
 
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
+        for (let xDraw = uiconst.TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = uiconst.TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.fallback_drawTile (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -129,7 +127,7 @@ class _Terminal extends _TerminalExtensions {
     setTileSize(tileSize) {
         if (this.tileSize !== tileSize) {
             this.tileSize = tileSize
-            this.ren.adjustCanvasSize( ...TILES_ON_SCREEN.sMul(this.tileSize).xy )
+            this.ren.adjustCanvasSize( ...uiconst.TILES_ON_SCREEN.sMul(this.tileSize).xy )
             this.sheet = new ui_sheets.ColourTextSpriteSheet(this.tileSize)
 
             if (DEBUG_TWOPASS_DRAW) {
@@ -179,13 +177,13 @@ class _Terminal extends _TerminalExtensions {
         this._fgMatrix = []
         this._bgMatrix = []
         this._dirtyMatrix = []
-        for (let yTile = 0; yTile < TILES_ON_SCREEN.y; yTile++) {
+        for (let yTile = 0; yTile < uiconst.TILES_ON_SCREEN.y; yTile++) {
             let glyphRow = []
             let fgRow = []
             let bgRow = []
             let dirtyRow = []
 
-            for (let xTile = 0; xTile < TILES_ON_SCREEN.x; xTile++) {
+            for (let xTile = 0; xTile < uiconst.TILES_ON_SCREEN.x; xTile++) {
                 glyphRow.push(" ")
                 fgRow.push(colours.WHITE)
                 bgRow.push(colours.BLACK)
@@ -305,6 +303,6 @@ export class Terminal extends _Terminal {
         this.gridPanel = new ui_grids.GridPanel(this)
         this.pauseMenuPanel = new ui_huds.PauseMenuPanel(this)
 
-        this._children = [this.pauseMenuPanel]
+        this._children = [this.pauseMenuPanel, this.gridPanel]
     }
 }

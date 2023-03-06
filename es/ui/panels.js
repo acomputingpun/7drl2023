@@ -3,6 +3,7 @@ import * as colours from '/es/ui/colours.js'
 import * as vecs from '/es/vectors.js'
 import * as errs from '/es/errs.js'
 import * as hacks from '/es/hacks.js'
+import * as utils from '/es/utils.js'
 
 export class Panel {
     constructor(parent=hacks.argPanic()) {
@@ -41,7 +42,7 @@ export class Panel {
     }
 
     drawChildren() {
-        for (let child of this.children) {
+        for (let child of utils.aReverse(this.children)) {
             child.draw()
         }
     }
