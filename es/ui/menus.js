@@ -139,7 +139,7 @@ export class MenuPanel extends panels.Panel {
         }
     }
     warpSelectItem(item) {
-        throw new errs.ToBeOverridden()
+        item.data(this)
     }
 
     warpCancel() {
@@ -152,9 +152,6 @@ export class MenuPanelWarp extends warps.Warp {
     get highlightedItem() { return this.panel.highlightedItem }
     get highlightedIndex() { return this.panel.highlightedIndex }
 
-    warpSelectItem(item) {
-        throw new errs.ToBeOverridden()
-    }
     warpSelect() {
         this.panel.warpSelectHighlightedItem()
     }

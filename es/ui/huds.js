@@ -6,23 +6,16 @@ import * as menus from '/es/ui/menus.js'
 export class PauseMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
         super(new menus.PresetMenu([
-            new menus.MenuItem("New Game", "n"),
-            new menus.MenuItem("Map Generation Sandbox", "m"),
-            new menus.MenuItem("Settings", "s"),
-            new menus.MenuItem("Exit", "x")
+            new menus.MenuItem("New Game", () => null),
+            new menus.MenuItem("Map Generation Sandbox", () => null),
+            new menus.MenuItem("Settings", (panel) => panel.ren.transferWarp(panel.settingsMenuPanel.focusWarp)),
+            new menus.MenuItem("Exit", () => "x")
         ]), ...rest)
         this.settingsMenuPanel = new SettingsMenuPanel(this)
     }
 
     get originShift() { return vecs.Vec2(10,10) }
     get panelSize() { return vecs.Vec2(30, 4) }
-
-    warpSelectItem(selectedItem) {
-        if (selectedItem.data == "s") {
-            this.ren.transferWarp(this.settingsMenuPanel.focusWarp)
-        } else {
-        }
-    }
 
     warpCancel() {
         if (this.state === null) {
@@ -35,24 +28,12 @@ export class PauseMenuPanel extends menus.MenuPanel {
 export class SettingsMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
         super(new menus.PresetMenu([
-            new menus.MenuItem("Reduce Tile Size", "r"),
-            new menus.MenuItem("Increase Tile Size", "i"),
-            new menus.MenuItem("Done", "d")
+            new menus.MenuItem("Reduce Tile Size", (panel) => panel.ter.adjustTileSize(-2) ),
+            new menus.MenuItem("Increase Tile Size", (panel) => panel.ter.adjustTileSize(+2) ),
+            new menus.MenuItem("Back", (panel) => panel.warpCancel())
         ]), ...rest)
     }
 
-    warpSelectItem(selectedItem) {
-        if (selectedItem.data == "r") {
-            this.ter.setTileSize( Math.max(this.ter.tileSize - 2, 6) )
-        } else if (selectedItem.data == "i") {
-            this.ter.setTileSize( Math.min(this.ter.tileSize + 2, 24) )
-        } else if (selectedItem.data == "d") {
-            this.warpCancel()
-        } else {
-
-        }
-    }
-
-    get originShift() { return vecs.Vec2(10,10) }
+    get originShift() { return vecs.Vec2(0,0) }
     get panelSize() { return vecs.Vec2(30, 3) }
 }

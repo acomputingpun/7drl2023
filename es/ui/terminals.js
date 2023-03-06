@@ -139,6 +139,9 @@ class _Terminal extends _TerminalExtensions {
             }
         }
     }
+    adjustTileSize(delta) {
+        this.setTileSize( utils.median3(6, this.tileSize+delta, 24) )
+    }
 
     get originShift() { return vecs.Vec2(0, 0) }
     get absOrigin() { return vecs.Vec2(0, 0) }
