@@ -1,5 +1,3 @@
-import * as genconst from '/es/genconst.js'
-
 import * as hacks from '/es/hacks.js'
 import * as vecs from '/es/vectors.js'
 import * as fonts from '/es/ui/fonts.js'
@@ -27,8 +25,11 @@ export class Renderer {
         this.canvas.oncontextmenu = function(e) { e.preventDefault(); }
         this.ctx = this.canvas.getContext("2d");  // If this semicolon is removed, the next line doesn't get executed properly.  Why?  Who knows, it's Javascript!
 
-        [this.canvas.width, this.canvas.height] = genconst.mainCanvasSize
+        [this.canvas.width, this.canvas.height] = [10, 10]
         document.body.appendChild(this.canvas)
+    }
+    adjustCanvasSize(xSize, ySize) {
+        [this.canvas.width, this.canvas.height] = [xSize, ySize]
     }
 
     initTerminal() {

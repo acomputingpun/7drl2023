@@ -22,8 +22,8 @@ class _TerminalExtensions {
 // ONE-PASS TERMINAL DRAWING FUNCTIONS
     onepass_drawTilesLoop() {
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning single-pass drawTiles loop")
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.onepass_drawTile (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -48,15 +48,15 @@ class _TerminalExtensions {
     twopass_drawTilesLoop() {
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning two-pass drawTiles loop")
 
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.twopass_drawBG (xDraw, yDraw)
                 }
             }
         }
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.twopass_drawGlyph (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -100,8 +100,8 @@ class _TerminalExtensions {
         this.ctx.font = fonts.terminalText(this.tileSize)
         hacks.dlog(DPRINT_DRAW_LOOP, "beginning FALLBACK drawtiles loop")
 
-        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw > 0; xDraw--) {
-            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw > 0; yDraw--) {
+        for (let xDraw = TILES_ON_SCREEN.x-1; xDraw >= 0; xDraw--) {
+            for (let yDraw = TILES_ON_SCREEN.y-1; yDraw >= 0; yDraw--) {
                 if (DEBUG_ALWAYS_DRAW || this._dirtyMatrix[yDraw][xDraw] ) {
                     this.fallback_drawTile (xDraw, yDraw)
                     this._dirtyMatrix[yDraw][xDraw] = false
@@ -129,6 +129,7 @@ class _Terminal extends _TerminalExtensions {
     setTileSize(tileSize) {
         if (this.tileSize !== tileSize) {
             this.tileSize = tileSize
+            this.ren.adjustCanvasSize( ...TILES_ON_SCREEN.sMul(this.tileSize).xy )
             this.sheet = new ui_sheets.ColourTextSpriteSheet(this.tileSize)
 
             if (DEBUG_TWOPASS_DRAW) {
