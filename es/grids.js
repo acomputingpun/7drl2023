@@ -1,3 +1,5 @@
+import * as hacks from '/es/hacks.js'
+import * as utils from '/es/utils.js'
 import * as vecs from '/es/vectors.js'
 import * as dirconst from '/es/dirconst.js'
 
@@ -8,18 +10,24 @@ export class Grid {
         this.xySize = xySize
         this._matrix = []
 
-        for (let y = 0; y < this.xySize.y; y++) {
-            let row = []
-            for (let x = 0; x < this.xySize.x; x++) {
-                row.push(new GridTile(x, y, this))
-            }
-            this._matrix.push(row)
-        }
+        this._matrix = utils.aCreate2( ...this.xySize.xy, (x,y) => new GridTile(x, y, this) )
     }
 
     lookup (x,y) {
         return this._matrix[y][x]
     }
+    iterPoses = hacks.cachedLookup(() => this.xySize, () => {
+        let poses = []
+        for (let y = 0; y < this.xySize.y; y++) {
+            for (let x = 0; x < this.xySize.x; x++) {
+                poses.push(vecs.Vec2(x,y))
+            }
+        }
+        return poses
+    })
+    iterTiles = hacks.cachedLookup(() => this.iterPoses(), () => {
+        return this.iterPoses().map(pos => this.lookup(...pos.xy))
+    })
 }
 
 export class GridTile {
@@ -28,6 +36,26 @@ export class GridTile {
         this.parent = parent
         
         this.terrain = new terrains.Floor(this)
+        this.occupant = null
+    }
+
+
+    get drawGlyph() {
+        if (this.occupant !== null) {
+            return this.occupant.drawGlyph
+        } else {
+            return this.terrain.drawGlyph
+        }
+    }
+    get drawFG() {
+        if (this.occupant !== null) {
+            return this.occupant.drawFG
+        } else {
+            return this.terrain.drawFG
+        }
+    }
+    get drawBG() {
+        return this.terrain.drawBG
     }
 
     relTile(xyRel) {
@@ -61,4 +89,9 @@ export class Occupant {
         }
         this._tile = tile
     }
+}
+
+export class Mob extends Occupant {
+    drawGlyph = "a"
+    drawFG = "#FF0"
 }

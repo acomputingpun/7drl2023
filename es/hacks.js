@@ -10,10 +10,11 @@ export function dlog(flag, ...args) {
     }
 }
 
-export function cachedLookup(caller=argPanic(), eff=argPanic()) {
+export function cachedLookup(dFunc=hacks.argPanic(), eff=argPanic()) {
     return () => {
-        if (eff.__dirtyID !== caller._dirtyID) {
-            eff.__dirtyID = caller._dirtyID
+        let dirtyID = dFunc()
+        if (eff.__dirtyID !== dirtyID) {
+            eff.__dirtyID = dirtyID
             eff.__cachedValue = eff()
         }
         return eff.__cachedValue

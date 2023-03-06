@@ -47,6 +47,18 @@ export function* aReverse(arr) {
     
 }
 
+export function aCreate2(xs, ys, iFunc) {
+    let arr = []
+    for (let y = 0; y < ys; y++) {
+        let row = []
+        for (let x = 0; x < xs; x++) {
+            row.push( iFunc(x, y) )
+        }
+        arr.push(row)
+    }
+    return arr
+}
+
 export function* span2(s, e) {
     let [xs, ys] = s
     let [xe, ye] = e

@@ -23,9 +23,9 @@ export class GridPanel extends panels.Panel {
                 for (let xViewport=0; xViewport<this.panelSize.x; xViewport++) {
                     let [xWorld, yWorld] = [xViewport, yViewport]
                     let tile = grid.lookup(xWorld, yWorld)
-                    if (tile !== null && tile.terrain !== null) {
+                    if (tile !== null) {
                         let [xTer, yTer] = [xViewport + xOrigin, yViewport + yOrigin]
-                        this.ter.put(xTer, yTer, tile.terrain.drawGlyph, tile.terrain.drawFG, tile.terrain.drawBG)
+                        this.ter.put(xTer, yTer, tile.drawGlyph, tile.drawFG, tile.drawBG)
                     }
                 }
             }
