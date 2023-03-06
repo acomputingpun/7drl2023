@@ -267,28 +267,6 @@ class _Terminal extends _TerminalExtensions {
         return yTer
     }
 
-    wrapText(text, xDraw, yDraw, xWidth, yLineHeight) {
-        let words = text.split(' ')
-        let line = ''
-
-        let yShift = 0
-
-        for (let word of words) {
-            let metric = this.ctx.measureText(line + word + ' ')
-            if (metric.width > xWidth) {
-                this.ctx.fillText(line, xDraw, yDraw+yShift)
-                yShift += yLineHeight
-                line = word + ' '
-            } else {
-                line = line + word + ' '
-            }
-        }
-        this.ctx.fillText(line, xDraw, yDraw+yShift)
-        yShift += yLineHeight
-        return yShift
-    }
-
-
     markDirty(tX, tY) {
         this._dirtyMatrix[tY][tX] = true
     }
@@ -301,8 +279,9 @@ export class Terminal extends _Terminal {
     constructor(...rest) {
         super(...rest)
         this.gridPanel = new ui_grids.GridPanel(this)
+        this.messagePanel = new ui_huds.MessageTickerPanel(this)
         this.pauseMenuPanel = new ui_huds.PauseMenuPanel(this)
 
-        this._children = [this.pauseMenuPanel, this.gridPanel]
+        this._children = [this.pauseMenuPanel, this.messagePanel, this.gridPanel]
     }
 }

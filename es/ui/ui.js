@@ -7,6 +7,9 @@ import * as ui_terminals from '/es/ui/terminals.js'
 import * as warps from '/es/ui/warps.js'
 import * as ui_huds from '/es/ui/huds.js'
 
+let DRAW_DEBUG = true
+let DDRAW_CANVAS_OUTLINE = true
+let DDRAW_MS = true
 let DPRINT_WARP_TRANSFERS = true
 
 export class Renderer {
@@ -73,18 +76,27 @@ export class Renderer {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
         this.terminal.draw(this)
 
-        this.drawDebug()
+        if (DRAW_DEBUG) {
+            this.drawDebug()
+        }
     }
     drawDebug() {
-        let drawTime = Date.now() - this.drawMS
-        this._oldDrawTimes = [...this._oldDrawTimes.slice(1), drawTime]
-
-        this.ctx.font = fonts.SMALL_TEXT
+        this.ctx.font = fonts.DEBUG_TEXT
         this.ctx.fillStyle=colours.DEBUG_TEXT
-        this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height)
+        this.ctx.strokeStyle=colours.DEBUG_TEXT
         this.ctx.textAlign = "left"
         this.ctx.textBaseline = "top"
-        this.ctx.fillText("TrueMS " + (this.drawMS - this.firstDrawMS), 2, 2)
-        this.ctx.fillText("prevFrames " + (this._oldDrawTimes), 2, 12)
+
+        if (DDRAW_MS) {
+            let drawTime = Date.now() - this.drawMS
+            this._oldDrawTimes = [...this._oldDrawTimes.slice(1), drawTime]
+
+            this.ctx.fillText("TrueMS " + (this.drawMS - this.firstDrawMS), 2, 2)
+            this.ctx.fillText("prevFrames " + (this._oldDrawTimes), 2, 12)
+        }
+
+        if (DDRAW_CANVAS_OUTLINE) {
+            this.ctx.strokeRect(0, 0, this.canvas.width, this.canvas.height)
+        }
     }
 }

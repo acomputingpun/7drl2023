@@ -1,3 +1,5 @@
+import * as utils from '/es/utils.js'
+
 export class Vector2 {
     constructor(x,y) {
         this.x=x
@@ -57,6 +59,10 @@ export class Vector2 {
     eq(other) {
         return this.x == other.x && this.y == other.y
     }
+}
+
+export function median3(v1, v2, v3) {
+    return new Vector2( utils.median3(v1.x, v2.x, v3.x), utils.median3(v1.y, v2.y, v3.y) )
 }
 
 export function Vec2(x,y) {

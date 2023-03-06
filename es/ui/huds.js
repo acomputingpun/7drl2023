@@ -2,6 +2,9 @@ import * as vecs from '/es/vectors.js'
 import * as hacks from '/es/hacks.js'
 
 import * as menus from '/es/ui/menus.js'
+import * as panels from '/es/ui/panels.js'
+
+let DEBUG_INITIAL_MESSAGES = ["text", "more text", "another message"]
 
 export class PauseMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
@@ -36,4 +39,29 @@ export class SettingsMenuPanel extends menus.MenuPanel {
 
     get originShift() { return vecs.Vec2(0,0) }
     get panelSize() { return vecs.Vec2(30, 3) }
+}
+
+export class MessageTickerPanel extends panels.Panel {
+    get originShift() { return vecs.Vec2(0,0) }
+    get panelSize() { return vecs.Vec2(40, 4) }
+
+    constructor(...rest) {
+        super(...rest)
+
+        this.messages = []
+        for (let message of DEBUG_INITIAL_MESSAGES) {
+            this.postMessage(message)
+        }
+    }
+
+    drawContents() {
+        let [xDraw, yDraw] = this.absOrigin.xy
+        for (let message of this.messages) {
+            yDraw = this.ter.textWrap(xDraw, yDraw, this.panelSize.x, message)+1
+        }
+    }
+
+    postMessage(message) {
+        this.messages.push(message)
+    }
 }
