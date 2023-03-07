@@ -14,4 +14,3 @@ export class Level {
         this.grid = new grids.Grid( vecs.Vec2(24, 24) )
     }
 }
-

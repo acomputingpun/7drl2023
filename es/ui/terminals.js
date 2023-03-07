@@ -9,7 +9,8 @@ import * as uiconst from '/es/ui/uiconst.js'
 
 import * as ui_sheets from '/es/ui/sheets.js'
 import * as ui_grids from '/es/ui/grids.js'
-import * as ui_huds from '/es/ui/huds.js'
+import * as ui_hud from '/es/ui/hud.js'
+import * as ui_mapgen from '/es/ui/mapgen.js'
 
 let DPRINT_DRAW_LOOP = false
 
@@ -278,10 +279,29 @@ class _Terminal extends _TerminalExtensions {
 export class Terminal extends _Terminal {
     constructor(...rest) {
         super(...rest)
-        this.gridPanel = new ui_grids.GridPanel(this)
-        this.messagePanel = new ui_huds.MessageTickerPanel(this)
-        this.pauseMenuPanel = new ui_huds.PauseMenuPanel(this)
+/*        this.gridPanel = new ui_grids.GridPanel(this)
+        this.messagePanel = new ui_hud.MessageTickerPanel(this)
+        this.pauseMenuPanel = new ui_hud.PauseMenuPanel(this)*/
+        this.primeDisplayPanel = null
+        this.showTitleScreen()
+    }
 
-        this._children = [this.pauseMenuPanel, this.messagePanel, this.gridPanel]
+    get children() { 
+        if (this.primeDisplayPanel !== null) {
+            return [this.primeDisplayPanel]
+        } else {
+            return []
+        }
+    }
+
+    showTitleScreen() {
+        this.primeDisplayPanel = new ui_hud.TitleScreenPanel(this)
+    }
+    showNewMapgenPanel(mapgen) {
+        this.primeDisplayPanel = new ui_mapgen.MapgenSandboxPanel(mapgen, this)
+    }
+    showNewGamePanel(state) {
+        throw new errs.Panic("Not yet implemented!")
+        this.displayPanel = "a panel gets created, based on the state!"
     }
 }
