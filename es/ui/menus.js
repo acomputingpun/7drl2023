@@ -96,7 +96,7 @@ export class PresetMenu extends Menu {
 }
 
 export class MenuPanel extends panels.Panel {
-    constructor(menu = hacks.argPanic(), ...rest) {
+    constructor(menu=hacks.argPanic(), ...rest) {
         super(...rest)
         this.menu = menu
         this.focusWarp = new MenuPanelWarp(this)

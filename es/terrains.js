@@ -1,7 +1,7 @@
 import * as hacks from '/es/hacks.js'
 
 class _Terrain {
-    constructor (parent = hacks.argPanic()) {
+    constructor (parent=hacks.argPanic()) {
         this.parent = parent
 
         this.drawGlyph = "?"

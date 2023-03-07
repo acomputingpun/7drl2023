@@ -4,8 +4,6 @@ import * as fonts from '/es/ui/fonts.js'
 import * as colours from '/es/ui/colours.js'
 
 import * as ui_terminals from '/es/ui/terminals.js'
-import * as warps from '/es/ui/warps.js'
-import * as ui_huds from '/es/ui/huds.js'
 
 let DRAW_DEBUG = true
 let DDRAW_CANVAS_OUTLINE = true
@@ -13,7 +11,7 @@ let DDRAW_MS = true
 let DPRINT_WARP_TRANSFERS = true
 
 export class Renderer {
-    constructor(runner) {
+    constructor(runner=hacks.argPanic()) {
         this.runner = runner
         this._activeWarp = null
 
@@ -45,7 +43,7 @@ export class Renderer {
 
     startListening() {
         console.log("this is", this)
-        this.transferWarp(this.terminal.pauseMenuPanel.focusWarp)
+        this.transferWarp(this.terminal.primeDisplayPanel.focusWarp)
         window.addEventListener('keydown', this.warpKeydown.bind(this), false)
     }
 

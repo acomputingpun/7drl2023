@@ -6,19 +6,35 @@ import * as panels from '/es/ui/panels.js'
 
 let DEBUG_INITIAL_MESSAGES = ["text", "more text", "another message"]
 
+export class TitleScreenPanel extends panels.Panel {
+    constructor(...rest){
+        super(...rest)
+        this._children = [new PauseMenuPanel(this)]
+    }
+
+    get focusWarp() { return this.children[0].focusWarp }
+
+    get originShift() { return vecs.Vec2(0,0) }
+    get panelSize() { return vecs.Vec2(30, 4) }
+}
+
 export class PauseMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
         super(new menus.PresetMenu([
-            new menus.MenuItem("New Game", () => null),
-            new menus.MenuItem("Map Generation Sandbox", () => null),
-            new menus.MenuItem("Settings", (panel) => panel.ren.transferWarp(panel.settingsMenuPanel.focusWarp)),
-            new menus.MenuItem("Exit", () => null)
+            new menus.MenuItem("New Game", (panel) => panel.ter.showNewGamePanel() ),
+            new menus.MenuItem("Map Generation Sandbox", (panel) => panel.warpMapgenSandbox() ),
+            new menus.MenuItem("Settings", (panel) => panel.ren.transferWarp(panel.settingsMenuPanel.focusWarp) ),
+            new menus.MenuItem("Exit", () => hacks.autoPanic() )
         ]), ...rest)
         this.settingsMenuPanel = new SettingsMenuPanel(this)
     }
 
     get originShift() { return vecs.Vec2(10,10) }
     get panelSize() { return vecs.Vec2(30, 4) }
+
+    warpMapgenSandbox() {
+        this.ter.showNewMapgenPanel(null)
+    }
 
     warpCancel() {
         if (this.state === null) {
