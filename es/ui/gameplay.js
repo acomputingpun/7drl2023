@@ -6,6 +6,9 @@ import * as warps from '/es/ui/warps.js'
 import * as uiconst from '/es/ui/uiconst.js'
 import * as ui_grids from '/es/ui/grids.js'
 
+let DPRINT_INVALID_ACTIONS = false
+let DPRINT_VALID_ACTIONS = true
+
 export class GameplayPanel extends panels.Panel {
     constructor(state=hacks.argPanic(), ...rest) {
         super(...rest)
@@ -20,6 +23,7 @@ export class GameplayPanel extends panels.Panel {
     }
 
     get grid() { return this.state.level.grid }
+    get hero() { return this.state.hero }
 
     get originShift() { return vecs.Vec2(0, 0) }
     get panelSize() { return uiconst.TILES_ON_SCREEN }
@@ -39,4 +43,16 @@ export class GameplayGridPanel extends ui_grids.GridPanel {
 }
 
 export class GameplayWarp extends warps.Warp {
+
+    get hero() { return this.panel.hero }
+    get heroTile() { return this.hero.tile }
+    
+    warpCardinal(card) {
+        let destTile = this.heroTile.relTile(card)
+        if (destTile === null) {
+            hacks.dlog(DPRINT_INVALID_ACTIONS, `can't move to destTile null!`)
+        } else {
+            hacks.dlog(DPRINT_VALID_ACTIONS, `should now move to destTile ${destTile}!`)
+        }
+    }
 }

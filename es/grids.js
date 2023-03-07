@@ -4,6 +4,7 @@ import * as vecs from '/es/vectors.js'
 import * as dirconst from '/es/dirconst.js'
 
 import * as terrains from '/es/terrains.js'
+import * as los from '/es/los/los.js'
 
 export class Grid {
     constructor(xySize = hacks.argPanic()) {
@@ -48,7 +49,8 @@ export class GridTile {
     constructor (x=hacks.argPanic(), y=hacks.argPanic(), parent=hacks.argPanic()) {
         this.xyPos = vecs.Vec2(x, y)
         this.parent = parent
-        
+
+        this.losData = new los.LosData(this)
         this.terrain = new terrains.Floor(this)
         this.occupant = null
     }
@@ -75,7 +77,7 @@ export class GridTile {
     relTile(xyRel) {
         return this.parent.lookup( ...this.xyPos.add(xyRel).xy )
     }
-    adjTiles() {
+    cardTiles() {
         return dirconst.CARDINALS.map( vec => this.relTile(vec) )
     }
     
@@ -84,6 +86,9 @@ export class GridTile {
 
 
 export class Occupant {
+    drawGlyph = "?"
+    drawFG = "#888"
+
     constructor () {
         this._tile = null
     }

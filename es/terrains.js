@@ -15,8 +15,8 @@ export class Wall extends _Terrain {
         super(...rest)
 
         this.drawGlyph = "#"
-        this.drawFG = "#555"
-        this.drawBG = "#111"
+        this.drawFG = "#888"
+        this.drawBG = "#222"
     }
 }
 
