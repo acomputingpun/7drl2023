@@ -4,7 +4,7 @@ import * as errs from '/es/errs.js'
 import * as colours from '/es/ui/colours.js'
 import * as fonts from '/es/ui/fonts.js'
 
-let DPRINT_CACHE_MISSES = true
+let DPRINT_CACHE_MISSES = false
 
 class _SpriteSheet extends hacks._Map {
     constructor(tileSize = hacks.argPanic(), ...rest) {

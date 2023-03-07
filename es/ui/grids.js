@@ -8,7 +8,6 @@ import * as uiconst from '/es/ui/uiconst.js'
 export class GridPanel extends panels.Panel {
     constructor(...rest) {
         super(...rest)
-
         this.xyWorldOrigin = vecs.Vec2(0, 0)
     }
 
@@ -16,16 +15,15 @@ export class GridPanel extends panels.Panel {
     get panelSize() { return uiconst.TILES_ON_SCREEN }
 
     get grid() {
-        return this.state.level.grid
+        throw new errs.ToBeOverridden()
     }
 
     drawBacking() {
     }
     drawContents() {
         let [xDrawOrigin, yDrawOrigin] = this.absNW.xy
-
-        if (this.state !== null && this.state.level !== null && this.state.level.grid !== null) {
-            let grid = this.state.level.grid
+        let grid = this.grid
+        if (grid !== null) {
 
             for (let yViewport=this.panelSize.y-1; yViewport>=0; yViewport--) {
                 let yWorld = this.xyWorldOrigin.y + yViewport
@@ -44,7 +42,7 @@ export class GridPanel extends panels.Panel {
 
     shiftWorldOrigin(vec) {
         this.xyWorldOrigin = this.xyWorldOrigin.add(vec)
-        this.constrainWorldOrigin()
+//        this.constrainWorldOrigin()
     }
     constrainWorldOrigin() {
         this.xyWorldOrigin = vecs.median3(dirconst.IN_PLACE, this.xyWorldOrigin, this.grid.xySize )

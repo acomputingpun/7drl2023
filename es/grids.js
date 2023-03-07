@@ -32,6 +32,16 @@ export class Grid {
     iterTiles = hacks.cachedLookup(() => this.iterPoses(), () => {
         return this.iterPoses().map(pos => this.lookup(...pos.xy))
     })
+
+    debugPrint() {
+        for (let y = 0; y <this.xySize.y; y++) {
+            let oStr = ""
+            for (let x = 0; x < this.xySize.x; x++) {
+                oStr = oStr + `${this.lookup(x, y).terrain.drawGlyph}`[0]
+            }
+            console.log(oStr)
+        }
+    }
 }
 
 export class GridTile {
@@ -68,7 +78,7 @@ export class GridTile {
     adjTiles() {
         return dirconst.CARDINALS.map( vec => this.relTile(vec) )
     }
-
+    
     toString() { return `t<${this.xyPos.x},${this.xyPos.y}>` }
 }
 

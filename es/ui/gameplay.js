@@ -6,31 +6,26 @@ import * as warps from '/es/ui/warps.js'
 import * as uiconst from '/es/ui/uiconst.js'
 import * as ui_grids from '/es/ui/grids.js'
 
-export class MapgenSandboxPanel extends panels.Panel {
-    constructor(mapgen=hacks.argPanic(), ...rest) {
+export class GameplayPanel extends panels.Panel {
+    constructor(state=hacks.argPanic(), ...rest) {
         super(...rest)
 
-        this.mapgen = mapgen
-        this.gridPanel = new MapgenGridPanel(this)
+        this.state = state
+        this.gridPanel = new GameplayGridPanel(this)
         this._children = [this.gridPanel]
     }
 
     createFocusWarp() {
-        return new MapgenWarp(this.gridPanel)
+        return new GameplayWarp(this)
     }
 
-
-    shiftWorldOrigin(vec) {
-        this.gridPanel.shiftWorldOrigin(vec)
-    }
-
-    get grid () { return this.mapgen.grid }
+    get grid() { return this.state.level.grid }
 
     get originShift() { return vecs.Vec2(0, 0) }
     get panelSize() { return uiconst.TILES_ON_SCREEN }
 }
 
-export class MapgenGridPanel extends ui_grids.GridPanel {
+export class GameplayGridPanel extends ui_grids.GridPanel {
     constructor(...rest) {
         super(...rest)
     }
@@ -39,13 +34,9 @@ export class MapgenGridPanel extends ui_grids.GridPanel {
         return this.parent.grid
     }
 
-    createFocusWarp() {
-        return new MapgenWarp(this)
-    }
-
     get originShift() { return vecs.Vec2(1, 1) }
     get panelSize() { return vecs.Vec2(30, 30) }
 }
 
-export class MapgenWarp extends ui_grids.GridPanelWarp {
+export class GameplayWarp extends warps.Warp {
 }

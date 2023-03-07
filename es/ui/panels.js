@@ -11,7 +11,6 @@ export class Panel {
         this._children = []
     }
 
-    get state() { return this.parent.state }
     get ren() { return this.parent.ren }
     get ter() { return this.parent.ter }
 

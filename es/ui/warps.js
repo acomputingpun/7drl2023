@@ -11,7 +11,6 @@ export class Warp {
     
     get panel() { return this._panel }
     get ren() { return this.panel.ren }
-    get state() { return this.ren.state }
     
     warpKeydown(ev) {
         switch(ev.key) {

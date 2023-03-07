@@ -11,6 +11,7 @@ import * as ui_sheets from '/es/ui/sheets.js'
 import * as ui_grids from '/es/ui/grids.js'
 import * as ui_hud from '/es/ui/hud.js'
 import * as ui_mapgen from '/es/ui/mapgen.js'
+import * as ui_gameplay from '/es/ui/gameplay.js'
 
 let DPRINT_DRAW_LOOP = false
 
@@ -153,7 +154,6 @@ class _Terminal extends _TerminalExtensions {
     }
 
     get ren() { return this._ren }
-    get state() { return this.ren.runner.state }
     get ctx() { return this.ren.ctx }
 
     get ter() { return this }
@@ -299,9 +299,10 @@ export class Terminal extends _Terminal {
     }
     showNewMapgenPanel(mapgen) {
         this.primeDisplayPanel = new ui_mapgen.MapgenSandboxPanel(mapgen, this)
+        this.ren.transferWarp(this.primeDisplayPanel.createFocusWarp())
     }
-    showNewGamePanel(state) {
-        throw new errs.Panic("Not yet implemented!")
-        this.displayPanel = "a panel gets created, based on the state!"
+    showNewGameplayPanel(state) {
+        this.primeDisplayPanel = new ui_gameplay.GameplayPanel(state, this)
+        this.ren.transferWarp(this.primeDisplayPanel.createFocusWarp())
     }
 }

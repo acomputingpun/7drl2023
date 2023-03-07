@@ -1,6 +1,9 @@
 import * as vecs from '/es/vectors.js'
 import * as hacks from '/es/hacks.js'
 
+import * as states from '/es/states.js'
+import * as mapgen from '/es/mapgen.js'
+
 import * as menus from '/es/ui/menus.js'
 import * as panels from '/es/ui/panels.js'
 
@@ -21,10 +24,10 @@ export class TitleScreenPanel extends panels.Panel {
 export class PauseMenuPanel extends menus.MenuPanel {
     constructor(...rest) {
         super(new menus.PresetMenu([
-            new menus.MenuItem("New Game", (panel) => panel.ter.showNewGamePanel() ),
-            new menus.MenuItem("Map Generation Sandbox", (panel) => panel.warpMapgenSandbox() ),
+            new menus.MenuItem("New Game", (panel) => panel.warpStartNewGame() ),
+            new menus.MenuItem("Map Generation Sandbox", (panel) => panel.warpStartMapgenSandbox() ),
             new menus.MenuItem("Settings", (panel) => panel.ren.transferWarp(panel.settingsMenuPanel.focusWarp) ),
-            new menus.MenuItem("Exit", () => hacks.autoPanic() )
+            new menus.MenuItem("Exit", () => hacks.panic("Exiting game?  What does that even do?") )
         ]), ...rest)
         this.settingsMenuPanel = new SettingsMenuPanel(this)
     }
@@ -32,8 +35,11 @@ export class PauseMenuPanel extends menus.MenuPanel {
     get originShift() { return vecs.Vec2(10,10) }
     get panelSize() { return vecs.Vec2(30, 4) }
 
-    warpMapgenSandbox() {
-        this.ter.showNewMapgenPanel(null)
+    warpStartMapgenSandbox() {
+        this.ter.showNewMapgenPanel(new mapgen.MapGenerator(null))
+    }
+    warpStartNewGame() {
+        this.ter.showNewGameplayPanel(new states.State(null))
     }
 
     warpCancel() {
