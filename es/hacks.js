@@ -1,7 +1,7 @@
 import * as errs from '/es/errs.js'
 
-export function panic (text) {
-    throw new errs.Panic(text)
+export function panic (...rest) {
+    throw new errs.Panic(...rest)
 }
 export function argPanic () {
     throw new errs.Panic(`Argument error!`)

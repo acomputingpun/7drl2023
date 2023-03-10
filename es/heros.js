@@ -1,6 +1,6 @@
-import * as grids from '/es/grids.js'
+import * as mobs from '/es/mobs.js'
 
-export class Hero extends grids.Occupant {   
+export class Hero extends mobs.Mob {   
     drawGlyph = "@"
     drawFG = "#FF0"
 }

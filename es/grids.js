@@ -98,9 +98,7 @@ export class Occupant {
     get tile() { return this._tile }
     set tile(tile) {
         if (tile !== null) {
-            if (tile.occupant !== null) {
-                throw new errs.Panic(`Tried to set occupant ${this} to tile {tile} but it already contained ${tile.occupant}`)
-            }
+            (tile.occupant === null) || hacks.panic(`Tried to set occupant ${this} to tile {tile} but it already contained ${tile.occupant}`)
             tile.occupant = this
         }
         if (this._tile !== null) {
@@ -108,9 +106,4 @@ export class Occupant {
         }
         this._tile = tile
     }
-}
-
-export class Mob extends Occupant {
-    drawGlyph = "a"
-    drawFG = "#FF0"
 }

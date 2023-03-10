@@ -1,9 +1,14 @@
 import * as errs from '/es/errs.js'
 
-class Actor {
+export class Actor {
     _ID = -1
     constructor() {
-        pass
+    }
+    
+    get ID() { return this._ID }
+    set ID(ID) {
+        (this._ID === -1) || hacks.panic(`tried to set ID of actor ${this} that already had ID ${this._ID}`)
+        this._ID = ID
     }
 }
 

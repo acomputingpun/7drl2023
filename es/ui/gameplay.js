@@ -1,6 +1,8 @@
 import * as vecs from '/es/vectors.js'
 import * as hacks from '/es/hacks.js'
 
+import * as actions from '/es/actions.js'
+
 import * as panels from '/es/ui/panels.js'
 import * as warps from '/es/ui/warps.js'
 import * as uiconst from '/es/ui/uiconst.js'
@@ -47,12 +49,17 @@ export class GameplayWarp extends warps.Warp {
     get hero() { return this.panel.hero }
     get heroTile() { return this.hero.tile }
     
+    warpSubmitAction() {
+        hacks.panic(`Not yet implemented`)
+    }
+
     warpCardinal(card) {
         let destTile = this.heroTile.relTile(card)
         if (destTile === null) {
             hacks.dlog(DPRINT_INVALID_ACTIONS, `can't move to destTile null!`)
         } else {
             hacks.dlog(DPRINT_VALID_ACTIONS, `should now move to destTile ${destTile}!`)
+            this.warpSubmitAction( new actions.MoveStep(this.hero, destTile) )
         }
     }
 }

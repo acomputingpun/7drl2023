@@ -12,20 +12,16 @@ export class Level {
     }
  
     registerActor (newActor) {
-        newActor._ID = this._nextActorID++
+        newActor.ID = this._nextActorID++
         this.initCounter.addActor(newActor)
     }
 
     get nextActor() { return this.initCounter.nextActor }
     
     executeAction(action) {
-        if (action.actor !== this.nextActor) {
-            throw errs.Panic("tried to execute action for actor out of turn!")
-        } else if (!action.hasValidArgs()) {
-            throw errs.Panic("tried to execute action without valid arguments!")
-        } else {
-            action.onExecute()
-        }
+        action.actor === this.nextActor || hacks.panic("tried to execute action for actor out of turn!")
+        action.hasValidArgs() || hacks.panic("tried to execute action without valid arguments!")
+        action.onExecute()
     }
 }
 
@@ -72,10 +68,7 @@ class InitCounter {
     }
     
     advanceTimeOf(actor) {
-        if (this.actors.includes(actor)) {
-            throw errs.Panic("advancing time of actor not in initiative count")
-        } else {
-            actor._timeDebt += this.TIME_DEBT_INCREMENT
-        }
+        this.actors.includes(actor) || hacks.panic("advancing time of actor not in initiative count")
+        actor._timeDebt += this.TIME_DEBT_INCREMENT
     }
 }
